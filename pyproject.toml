@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "user-managment-service"
+version = "0.1.0"
+description = ""
+authors = ["Aleksey Cherniaev <cherniaevaleksey2304@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+fastapi = "^0.111.0"
+uvicorn = "^0.30.1"
+alembic = "^1.13.1"
+sqlalchemy = {extras = ["asyncio"], version = "^2.0.31"}
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
