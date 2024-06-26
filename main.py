@@ -1,7 +1,7 @@
 import uvicorn
 from fastapi import FastAPI
 
-from app.utils.singleton import singleton
+from app.tests.utils.singleton import singleton
 
 
 @singleton
