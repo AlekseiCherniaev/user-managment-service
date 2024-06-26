@@ -22,7 +22,7 @@ class User(Base):
     role_id: Mapped[int] = mapped_column(ForeignKey("roles.id"))
     group_id: Mapped[int] = mapped_column(ForeignKey("groups.id"))
     image_path: Mapped[str] = mapped_column(String(128))
-    is_blocked: Mapped[bool] = mapped_column(default=False)
+    is_blocked: Mapped[bool] = mapped_column(default=False, server_default='False')
     created_at: Mapped[str] = mapped_column(nullable=False, default=func.CURRENT_TIMESTAMP(),
                                             server_default=func.CURRENT_TIMESTAMP())
     modified_at: Mapped[str] = mapped_column(nullable=False, default=func.CURRENT_TIMESTAMP(),
