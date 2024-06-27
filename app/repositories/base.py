@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Optional, Sequence
 
-from app.domain.entities.user import User
+from app.domain.entities.user import User, UserUpdate
 
 
 class BaseRepo(ABC):
@@ -18,7 +18,7 @@ class BaseRepo(ABC):
         ...
 
     @abstractmethod
-    def update(self, user_id: User, session) -> User:
+    def update(self, user_id: User, user_update: UserUpdate, session) -> User:
         ...
 
     @abstractmethod
