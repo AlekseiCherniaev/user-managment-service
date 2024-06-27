@@ -1,7 +1,7 @@
 import re
 import uuid
 
-from pydantic import BaseModel, EmailStr, Field, validator
+from pydantic import BaseModel, EmailStr, Field, validator, field_validator
 from typing import Optional
 from datetime import datetime
 
@@ -19,6 +19,13 @@ class UserBase(BaseModel):
     image_path: Optional[str] = Field(None, max_length=128)
     is_blocked: bool = False
     active: bool = True
+
+    @field_validator("phone_number")
+    def phone_number_validation(cls, v):
+        regex = r"^\+?[1-9][0-9]{7,14}$"
+        if not re.fullmatch(regex, v):
+            raise InvalidPhoneNumberException
+        return v
 
 
 class UserCreate(UserBase):
@@ -42,16 +49,8 @@ class UserUpdatePartial(BaseModel):
     is_blocked: Optional[bool] = None
     active: Optional[bool] = None
 
-    @validator("phone_number")
-    def phone_validation(cls, v):
-        regex = r"^(\+)[1-9][0-9\-\(\)\.]{9,15}$"
-        if v and not re.search(regex, v, re.I):
-            raise InvalidPhoneNumberException
-        return v
-
 
 class User(UserBase):
-    id: uuid.UUID
+    id: int
     created_at: datetime
     modified_at: datetime
-
