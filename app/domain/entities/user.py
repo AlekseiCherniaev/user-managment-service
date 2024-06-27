@@ -1,6 +1,11 @@
-from pydantic import BaseModel, EmailStr, Field
+import re
+import uuid
+
+from pydantic import BaseModel, EmailStr, Field, validator
 from typing import Optional
 from datetime import datetime
+
+from app.domain.exceptions import InvalidPhoneNumberException
 
 
 class UserBase(BaseModel):
@@ -37,9 +42,16 @@ class UserUpdatePartial(BaseModel):
     is_blocked: Optional[bool] = None
     active: Optional[bool] = None
 
+    @validator("phone_number")
+    def phone_validation(cls, v):
+        regex = r"^(\+)[1-9][0-9\-\(\)\.]{9,15}$"
+        if v and not re.search(regex, v, re.I):
+            raise InvalidPhoneNumberException
+        return v
+
 
 class User(UserBase):
-    id: int
+    id: uuid.UUID
     created_at: datetime
     modified_at: datetime
 
