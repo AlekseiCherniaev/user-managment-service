@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
-
-from sqlalchemy import String, func, ForeignKey
+from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import String, ForeignKey
 from sqlalchemy.orm import mapped_column, Mapped, relationship
 
 from app.domain.models import Base
@@ -13,6 +13,7 @@ if TYPE_CHECKING:
 class User(Base):
     __tablename__ = "users"
 
+    id: Mapped[UUID] = mapped_column(UUID, primary_key=True)
     name: Mapped[str] = mapped_column(String(128), nullable=False)
     surname: Mapped[str] = mapped_column(String(128), nullable=False)
     username: Mapped[str] = mapped_column(String(128), nullable=False, unique=True)
@@ -23,10 +24,6 @@ class User(Base):
     group_id: Mapped[int] = mapped_column(ForeignKey("groups.id"))
     image_path: Mapped[str] = mapped_column(String(128))
     is_blocked: Mapped[bool] = mapped_column(default=False, server_default='False')
-    created_at: Mapped[str] = mapped_column(nullable=False, default=func.CURRENT_TIMESTAMP(),
-                                            server_default=func.CURRENT_TIMESTAMP())
-    modified_at: Mapped[str] = mapped_column(nullable=False, default=func.CURRENT_TIMESTAMP(),
-                                             server_default=func.CURRENT_TIMESTAMP())
     active: Mapped[bool] = mapped_column(default=True, server_default='True')
 
     role: Mapped['Role'] = relationship(back_populates="users")
