@@ -53,4 +53,4 @@ class UserUpdatePartial(BaseModel):
 
 
 class User(UserBase):
-    id: uuid.UUID
+    id: uuid.UUID = Field(default_factory=uuid.uuid4)

@@ -1,26 +1,30 @@
+import uuid
 from abc import ABC, abstractmethod
-from typing import Optional, Sequence
+
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.domain.entities.user import User, UserUpdate
 
 
 class BaseRepo(ABC):
+    db: AsyncSession
+
     @abstractmethod
-    def create(self, user: User, session) -> Optional[User]:
+    def get_by_id(self, user_id: uuid.UUID) -> User | None:
         ...
 
     @abstractmethod
-    def get_by_id(self, user_id: int, session) -> Optional[User]:
+    def get_all(self) -> list[User]:
         ...
 
     @abstractmethod
-    def list(self, session) -> Optional[Sequence[User]]:
+    def create(self, user: User) -> User | None:
         ...
 
     @abstractmethod
-    def update(self, user_id: User, user_update: UserUpdate, session) -> User:
+    def update(self, user_id: uuid.UUID, user_update: UserUpdate) -> User:
         ...
 
     @abstractmethod
-    def delete(self, user_id, session):
+    def delete(self, user_id: uuid.UUID):
         ...

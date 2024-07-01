@@ -1,3 +1,4 @@
+import uuid
 from typing import TYPE_CHECKING
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy import String, ForeignKey
@@ -13,7 +14,7 @@ if TYPE_CHECKING:
 class User(Base):
     __tablename__ = "users"
 
-    id: Mapped[UUID] = mapped_column(UUID, primary_key=True)
+    id: Mapped[UUID] = mapped_column(UUID, primary_key=True, default=uuid.uuid4)
     name: Mapped[str] = mapped_column(String(128), nullable=False)
     surname: Mapped[str] = mapped_column(String(128), nullable=False)
     username: Mapped[str] = mapped_column(String(128), nullable=False, unique=True)
