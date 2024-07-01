@@ -1,7 +1,7 @@
+import datetime
 import enum
 
 from pydantic import BaseModel
-from typing import Optional
 
 
 class RoleEnum(enum.Enum):
@@ -12,6 +12,8 @@ class RoleEnum(enum.Enum):
 
 class RoleBase(BaseModel):
     name: RoleEnum
+    created_at: datetime
+    updated_at: datetime
 
 
 class RoleCreate(RoleBase):
@@ -20,10 +22,6 @@ class RoleCreate(RoleBase):
 
 class RoleUpdate(RoleBase):
     pass
-
-
-class RoleUpdatePartial(BaseModel):
-    name: Optional[RoleEnum] = None
 
 
 class Role(RoleBase):
