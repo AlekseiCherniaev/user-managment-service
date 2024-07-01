@@ -22,3 +22,8 @@ class UserAlreadyExistsException(BException):
 class UserNotFoundException(BException):
     status_code = status.HTTP_404_NOT_FOUND
     detail = "User not found"
+
+
+class InvalidPhoneNumberException(BException):
+    status_code = status.HTTP_401_UNAUTHORIZED
+    detail = "Phone number is not valid"

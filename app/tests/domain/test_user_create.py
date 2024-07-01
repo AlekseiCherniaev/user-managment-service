@@ -5,7 +5,7 @@ import pytest
 from pydantic import ValidationError
 
 from app.domain.entities.user import User
-from app.domain.exceptions import InvalidPhoneNumberException
+from app.config.exceptions import InvalidPhoneNumberException
 
 
 def test_user_create():

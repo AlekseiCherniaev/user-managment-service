@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import (
 )
 
 
-from app.adapters.config.config import settings
+from app.config.config import settings
 
 
 class DBHelper:
