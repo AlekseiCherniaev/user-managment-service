@@ -6,7 +6,7 @@ from app.domain.models.user import User
 from app.repositories.base import BaseRepo
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.repositories.exceptions import PasswordNotValidException, UserAlreadyExistsException, UserNotFoundException
+from app.config.exceptions import PasswordNotValidException, UserAlreadyExistsException, UserNotFoundException
 
 
 class UserRepo(BaseRepo):

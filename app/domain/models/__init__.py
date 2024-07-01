@@ -5,4 +5,7 @@ __all__ = (
     'User',
 )
 
-from app.domain.models.group import Group
+from .base import Base
+from .group import Group
+from .role import Role
+from .user import User
