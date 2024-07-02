@@ -27,5 +27,5 @@ class User(Base):
     is_blocked: Mapped[bool] = mapped_column(default=False, server_default='False')
     active: Mapped[bool] = mapped_column(default=True, server_default='True')
 
-    role: Mapped['Role'] = relationship(back_populates="users")
-    group: Mapped['Group'] = relationship(back_populates="users")
+    roles: Mapped['Role'] = relationship(back_populates="users")
+    groups: Mapped['Group'] = relationship(back_populates="users")

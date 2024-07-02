@@ -10,21 +10,21 @@ class BaseRepo(ABC):
     db: AsyncSession
 
     @abstractmethod
-    def get_by_id(self, user_id: uuid.UUID) -> User | None:
+    async def get_by_id(self, user_id: uuid.UUID, session: AsyncSession) -> User | None:
         ...
 
     @abstractmethod
-    def get_all(self) -> list[User]:
+    async def get_all(self, session: AsyncSession) -> list[User]:
         ...
 
     @abstractmethod
-    def create(self, user: User) -> User | None:
+    async def create(self, user: User, session: AsyncSession) -> User | None:
         ...
 
     @abstractmethod
-    def update(self, user_id: uuid.UUID, user_update: UserUpdate) -> User:
+    async def update(self, user_id: uuid.UUID, user_update: UserUpdate, session: AsyncSession) -> User:
         ...
 
     @abstractmethod
-    def delete(self, user_id: uuid.UUID):
+    async def delete(self, user_id: uuid.UUID, session: AsyncSession):
         ...
