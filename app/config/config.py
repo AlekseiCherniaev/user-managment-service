@@ -10,11 +10,11 @@ load_dotenv()
 class Settings(BaseSettings):
     db_echo: bool = False
     # db_echo: bool = True
-    SETTINGS_DB_HOST: str
-    SETTINGS_DB_PORT: int
-    SETTINGS_DB_NAME: str
-    SETTINGS_DB_USER: str
-    SETTINGS_DB_PASSWORD: str
+    POSTGRES_HOST: str
+    POSTGRES_PORT: int
+    POSTGRES_DB: str
+    POSTGRES_USER: str
+    POSTGRES_PASSWORD: str
 
     ALGORITHM: str = "RS256"
 
@@ -23,7 +23,7 @@ class Settings(BaseSettings):
     token_expire_minutes: int = 5
 
     def get_db_url(self):
-        return f"postgresql+asyncpg://{self.SETTINGS_DB_USER}:{self.SETTINGS_DB_PASSWORD}@{self.SETTINGS_DB_HOST}:{self.SETTINGS_DB_PORT}/{self.SETTINGS_DB_NAME}"
+        return f"postgresql+asyncpg://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
 
 
 settings = Settings()
