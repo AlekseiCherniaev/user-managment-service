@@ -26,6 +26,7 @@ services:
       - "8000:8000"
     expose:
       - "8000"
+    command: /code/start.sh
 
 networks:
   common_network:
