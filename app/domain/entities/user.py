@@ -3,7 +3,6 @@ import uuid
 
 from pydantic import BaseModel, EmailStr, Field, field_validator
 from typing import Optional
-from datetime import datetime
 
 from app.config.exceptions import InvalidPhoneNumberException
 
@@ -19,8 +18,6 @@ class UserBase(BaseModel):
     image_path: Optional[str] = Field(None, max_length=128)
     is_blocked: bool = False
     active: bool = True
-    created_at: datetime
-    modified_at: datetime
 
     @field_validator("phone_number")
     def phone_number_validation(cls, v):

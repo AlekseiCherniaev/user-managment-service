@@ -1,8 +1,8 @@
-"""create tables
+"""create all tables
 
-Revision ID: e2e819a8a888
+Revision ID: 2ebadfcf85a5
 Revises: 
-Create Date: 2024-07-03 15:39:32.855596
+Create Date: 2024-07-03 20:16:06.881603
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'e2e819a8a888'
+revision: str = '2ebadfcf85a5'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -23,15 +23,15 @@ def upgrade() -> None:
     op.create_table('groups',
     sa.Column('name', sa.String(length=52), nullable=False),
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('created_at', sa.String(), server_default=sa.text('now()'), nullable=False),
-    sa.Column('modified_at', sa.String(), server_default=sa.text('now()'), nullable=False),
+    sa.Column('created_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
+    sa.Column('modified_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('roles',
     sa.Column('name', sa.Enum('USER', 'ADMIN', 'MODERATOR', name='roleenum'), nullable=False),
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('created_at', sa.String(), server_default=sa.text('now()'), nullable=False),
-    sa.Column('modified_at', sa.String(), server_default=sa.text('now()'), nullable=False),
+    sa.Column('created_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
+    sa.Column('modified_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('name')
     )
@@ -48,8 +48,8 @@ def upgrade() -> None:
     sa.Column('image_path', sa.String(length=128), nullable=False),
     sa.Column('is_blocked', sa.Boolean(), server_default='False', nullable=False),
     sa.Column('active', sa.Boolean(), server_default='True', nullable=False),
-    sa.Column('created_at', sa.String(), server_default=sa.text('now()'), nullable=False),
-    sa.Column('modified_at', sa.String(), server_default=sa.text('now()'), nullable=False),
+    sa.Column('created_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
+    sa.Column('modified_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
     sa.ForeignKeyConstraint(['group_id'], ['groups.id'], ),
     sa.ForeignKeyConstraint(['role_id'], ['roles.id'], ),
     sa.PrimaryKeyConstraint('id'),
