@@ -35,7 +35,7 @@ class UserUseCases:
             logger.error(f"Password not valid: {str(e)}")
             raise e
         except Exception as e:
-            logger.error(f"Error creating user with ID {user_in.id}: {str(e)}")
+            logger.error(f"Error creating user: {str(e)}")
 
     async def get_by_id(self, user_id: UUID, session: AsyncSession) -> User | None:
         try:
@@ -68,14 +68,18 @@ class UserUseCases:
             if user:
                 raise UserAlreadyExistsException
 
-            if not password_check_complexity(user_update.password):
-                raise PasswordNotValidException
-
+            if user_update.password:
+                if not password_check_complexity(user_update.password):
+                    raise PasswordNotValidException
+                user_data = user_update.model_dump(exclude_unset=True)
+                user_data["password"] = hash_password(user_data["password"])
+            else:
+                user_data = user_update.model_dump(exclude_unset=True)
             user = await self.get_by_id(user_id, session=session)
             if not user:
                 raise UserNotFoundException
             else:
-                for key, value in user_update.model_dump(exclude_unset=True).items():
+                for key, value in user_data.items():
                     setattr(user, key, value)
                 await session.commit()
                 return user
