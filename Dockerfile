@@ -6,7 +6,7 @@ RUN pip install poetry
 
 COPY ./pyproject.toml ./poetry.lock* /tmp/
 
-RUN cd /tmp && poetry export -f requirements.txt --output requirements.t
+RUN cd /tmp && poetry export -f requirements.txt --output requirements.txt
 
 RUN pip install --no-cache-dir --upgrade -r /tmp/requirements.txt
 
