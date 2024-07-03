@@ -3,28 +3,27 @@ from abc import ABC, abstractmethod
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.domain.entities.user import User, UserUpdate
+from app.domain.entities.user import User, UserUpdate, UserCreate
 
 
 class BaseRepo(ABC):
-    db: AsyncSession
 
     @abstractmethod
-    async def get_by_id(self, user_id: uuid.UUID, session: AsyncSession) -> User | None:
+    async def create_user(self, user: UserCreate, session: AsyncSession) -> User:
         ...
 
     @abstractmethod
-    async def get_all(self, session: AsyncSession) -> list[User]:
+    async def get_user(self, user_id: uuid.UUID, session: AsyncSession) -> User | None:
         ...
 
     @abstractmethod
-    async def create(self, user: User, session: AsyncSession) -> User | None:
+    async def get_all_users(self, session: AsyncSession) -> list[User]:
         ...
 
     @abstractmethod
-    async def update(self, user_id: uuid.UUID, user_update: UserUpdate, session: AsyncSession) -> User:
+    async def update_user(self, user_id: uuid.UUID, user_update: UserUpdate, session: AsyncSession) -> User:
         ...
 
     @abstractmethod
-    async def delete(self, user_id: uuid.UUID, session: AsyncSession):
+    async def delete_user(self, user_id: uuid.UUID, session: AsyncSession) -> None:
         ...
