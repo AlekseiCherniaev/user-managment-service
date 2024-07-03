@@ -64,7 +64,7 @@ class UserUseCases:
         try:
             statement = select(User).where(or_(User.username == user_update.username, User.email == user_update.email,
                                                User.phone_number == user_update.phone_number))
-            user = (await session.execute(statement)).scalar_one_or_none()
+            user = (await session.execute(statement)).all()
             if user:
                 raise UserAlreadyExistsException
 

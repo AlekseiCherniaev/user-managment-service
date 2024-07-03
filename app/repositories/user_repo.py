@@ -3,8 +3,7 @@
 from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.domain.entities.user import UserCreate, UserUpdate
-from app.domain.models import User
+from app.domain.entities.user import UserCreate, UserUpdate, User
 from app.repositories.base import BaseRepo
 from app.use_cases.user_usecases import UserUseCases
 
