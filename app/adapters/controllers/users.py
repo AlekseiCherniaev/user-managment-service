@@ -13,30 +13,30 @@ user_router = APIRouter(
 
 
 @user_router.get("/")
-async def get(user_id: UUID, user_use_cases: UserRepo = Depends(),
-              session: AsyncSession = Depends(db_helper.scoped_session_dependency)):
-    return await user_use_cases.get_user(user_id, session)
+async def get(user_id: UUID, user_repo: UserRepo = Depends(),
+              session: AsyncSession = Depends(db_helper.session_dependency)):
+    return await user_repo.get_user(user_id, session)
 
 
 @user_router.get("/all/")
-async def get_all(user_use_cases: UserRepo = Depends(),
-                  session: AsyncSession = Depends(db_helper.scoped_session_dependency)):
-    return await user_use_cases.get_all_users(session)
+async def get_all(user_repo: UserRepo = Depends(),
+                  session: AsyncSession = Depends(db_helper.session_dependency)):
+    return await user_repo.get_all_users(session)
 
 
 @user_router.post("/create/")
-async def create(user_in: UserCreate, user_use_cases: UserRepo = Depends(),
-                 session: AsyncSession = Depends(db_helper.scoped_session_dependency)):
-    return await user_use_cases.create_user(user_in, session)
+async def create(user_in: UserCreate, user_repo: UserRepo = Depends(),
+                 session: AsyncSession = Depends(db_helper.session_dependency)):
+    return await user_repo.create_user(user_in, session)
 
 
 @user_router.patch("/update/")
-async def update(user: UserUpdate, user_id: UUID, user_use_cases: UserRepo = Depends(),
-                 session: AsyncSession = Depends(db_helper.scoped_session_dependency)):
-    return await user_use_cases.update_user(user_id, user, session)
+async def update(user: UserUpdate, user_id: UUID, user_repo: UserRepo = Depends(),
+                 session: AsyncSession = Depends(db_helper.session_dependency)):
+    return await user_repo.update_user(user_id, user, session)
 
 
 @user_router.delete("/delete/")
-async def delete(user_id: UUID, user_use_cases: UserRepo = Depends(),
-                 session: AsyncSession = Depends(db_helper.scoped_session_dependency)):
-    return await user_use_cases.delete_user(user_id, session)
+async def delete(user_id: UUID, user_repo: UserRepo = Depends(),
+                 session: AsyncSession = Depends(db_helper.session_dependency)):
+    return await user_repo.delete_user(user_id, session)

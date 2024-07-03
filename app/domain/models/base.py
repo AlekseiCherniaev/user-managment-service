@@ -10,12 +10,10 @@ class Base(DeclarativeBase):
     id: Mapped[int] = mapped_column(primary_key=True)
     created_at: Mapped[datetime] = mapped_column(
         nullable=False,
-        default=func.now(),
-        server_default=func.now()
+        default=func.now()
     )
     modified_at: Mapped[datetime] = mapped_column(
         nullable=False,
         default=func.now(),
-        server_default=func.now(),
         onupdate=func.now()
     )
