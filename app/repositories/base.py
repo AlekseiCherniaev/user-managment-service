@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.domain.entities.token import Token
 from app.domain.entities.user import User, UserUpdate, UserCreate
 
 
@@ -26,4 +27,20 @@ class BaseRepo(ABC):
 
     @abstractmethod
     async def delete_user(self, user_id: uuid.UUID, session: AsyncSession) -> None:
+        ...
+
+    @abstractmethod
+    async def login_user(self, user: User) -> Token:
+        ...
+
+    @abstractmethod
+    async def current_user(self, payload: dict, user: User) -> dict:
+        ...
+
+    @abstractmethod
+    async def signup_user(self, user: User) -> Token:
+        ...
+
+    @abstractmethod
+    async def refresh_jwt(self, user: User) -> Token:
         ...

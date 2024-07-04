@@ -1,15 +1,17 @@
-
-
 from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.domain.entities.token import Token
 from app.domain.entities.user import UserCreate, UserUpdate, User
 from app.repositories.base import BaseRepo
+from app.use_cases.auth_usecases import AuthUseCases
 from app.use_cases.user_usecases import UserUseCases
 
 
 class UserRepo(BaseRepo):
     user_use_cases: UserUseCases = UserUseCases()
+    auth_use_cases: AuthUseCases = AuthUseCases()
 
     async def create_user(self, user_in: UserCreate,
                           session: AsyncSession) -> User:
@@ -29,3 +31,15 @@ class UserRepo(BaseRepo):
     async def delete_user(self, user_id: UUID,
                           session: AsyncSession) -> None:
         return await self.user_use_cases.delete(user_id, session)
+
+    async def login_user(self, user: User) -> Token:
+        return await self.auth_use_cases.login(user)
+
+    async def signup_user(self, user: User) -> Token:
+        return await self.auth_use_cases.signup(user)
+
+    async def current_user(self, payload: dict, user: User) -> dict:
+        return await self.auth_use_cases.current_user(payload, user)
+
+    async def refresh_jwt(self, user: User) -> Token:
+        return await self.auth_use_cases.refresh_jwt(user)
