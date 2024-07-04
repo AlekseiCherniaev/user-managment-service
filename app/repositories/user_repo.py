@@ -1,5 +1,5 @@
 from uuid import UUID
-
+from fastapi import Response
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.domain.entities.token import Token
@@ -32,14 +32,23 @@ class UserRepo(BaseRepo):
                           session: AsyncSession) -> None:
         return await self.user_use_cases.delete(user_id, session)
 
+    async def get_current_user(self, payload: dict, user: User) -> dict:
+        return await self.user_use_cases.get_current_user(payload, user)
+
+    async def update_current_user(self, payload: dict, user_update: UserUpdate, session: AsyncSession) -> User:
+        return await self.user_use_cases.update_current_user(payload, user_update, session)
+
+    async def delete_current_user(self, payload: dict, session: AsyncSession) -> None:
+        return await self.user_use_cases.delete_current_user(payload, session)
+
     async def login_user(self, user: User) -> Token:
         return await self.auth_use_cases.login(user)
 
     async def signup_user(self, user: User) -> Token:
         return await self.auth_use_cases.signup(user)
 
-    async def current_user(self, payload: dict, user: User) -> dict:
-        return await self.auth_use_cases.current_user(payload, user)
-
     async def refresh_jwt(self, user: User) -> Token:
         return await self.auth_use_cases.refresh_jwt(user)
+
+    async def logout_user(self, response: Response) -> None:
+        return await self.auth_use_cases.logout(response)

@@ -42,3 +42,8 @@ class InvalidTokenException(BException):
 class UserInactiveException(BException):
     status_code = status.HTTP_403_FORBIDDEN
     detail = "User inactive"
+
+
+class UserBlockedException(BException):
+    status_code = status.HTTP_403_FORBIDDEN
+    detail = "User blocked"

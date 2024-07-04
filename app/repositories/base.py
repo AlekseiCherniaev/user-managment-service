@@ -1,6 +1,6 @@
 import uuid
 from abc import ABC, abstractmethod
-
+from fastapi import Response
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.domain.entities.token import Token
@@ -34,7 +34,15 @@ class BaseRepo(ABC):
         ...
 
     @abstractmethod
-    async def current_user(self, payload: dict, user: User) -> dict:
+    async def get_current_user(self, payload: dict, user: User) -> dict:
+        ...
+
+    @abstractmethod
+    async def update_current_user(self, payload: dict, user_update: UserUpdate, session: AsyncSession) -> User:
+        ...
+
+    @abstractmethod
+    async def delete_current_user(self, payload: dict, session: AsyncSession) -> None:
         ...
 
     @abstractmethod
@@ -43,4 +51,8 @@ class BaseRepo(ABC):
 
     @abstractmethod
     async def refresh_jwt(self, user: User) -> Token:
+        ...
+
+    @abstractmethod
+    async def logout_user(self, response: Response) -> None:
         ...

@@ -1,11 +1,13 @@
 from fastapi import Depends, Form
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.security import OAuth2PasswordBearer, HTTPBearer
 from jwt import InvalidTokenError
 from sqlalchemy import select, Result
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.sql.elements import or_
 
 from app.adapters.utils import decode_jwt, validate_password, TOKEN_TYPE_FIELD, ACCESS_TOKEN_TYPE, REFRESH_TOKEN_TYPE
-from app.config.exceptions import InvalidTokenException, UserNotFoundException, WrongPasswordException
+from app.config.exceptions import InvalidTokenException, UserNotFoundException, WrongPasswordException, \
+    UserBlockedException
 from app.config.logger_config import logger
 from app.dependencies.db_helper import db_helper
 from app.domain.models import User
@@ -13,6 +15,8 @@ from app.domain.models import User
 oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl="/auth/login/",
 )
+
+http_bearer = HTTPBearer(auto_error=False)
 
 
 def get_current_token_payload(
@@ -81,7 +85,8 @@ async def validate_auth_user(
         session: AsyncSession = Depends(db_helper.session_dependency),
 ):
     try:
-        statement = select(User).where(User.username == username)
+        statement = select(User).where(or_(User.username == username, User.email == username,
+                                           User.phone_number == username))
         result: Result = await session.execute(statement)
         user = result.scalar_one_or_none()
         if not user:
@@ -93,8 +98,8 @@ async def validate_auth_user(
         ):
             raise WrongPasswordException
 
-        if not user.active:
-            raise UserNotFoundException
+        if user.is_blocked:
+            raise UserBlockedException
 
         return user
     except WrongPasswordException as e:
@@ -105,3 +110,11 @@ async def validate_auth_user(
         raise e
     except Exception as e:
         logger.error(f"Exception in validating user: {str(e)}")
+
+
+async def get_current_user_from_token(payload: dict, session: AsyncSession) -> User:
+    username = payload.get("sub")
+    statement = select(User).where(User.username == username)
+    result: Result = await session.execute(statement)
+    user = result.scalar_one_or_none()
+    return user
