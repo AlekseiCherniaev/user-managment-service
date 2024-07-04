@@ -1,5 +1,4 @@
 from uuid import UUID
-
 from sqlalchemy import select, Result
 from app.config.logger_config import logger
 from app.adapters.utils import password_check_complexity, hash_password

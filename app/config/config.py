@@ -20,7 +20,8 @@ class Settings(BaseSettings):
 
     public_key_path: Path = BASE_DIR / "certs" / "jwt-public.pem"
     private_key_path: Path = BASE_DIR / "certs" / "jwt-private.pem"
-    token_expire_minutes: int = 5
+    access_token_expire_minutes: int = 5
+    refresh_token_expire_days: int = 30
 
     def get_db_url(self):
         return f"postgresql+asyncpg://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
