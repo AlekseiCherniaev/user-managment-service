@@ -27,3 +27,18 @@ class UserNotFoundException(BException):
 class InvalidPhoneNumberException(BException):
     status_code = status.HTTP_401_UNAUTHORIZED
     detail = "Phone number is not valid"
+
+
+class WrongPasswordException(BException):
+    status_code = status.HTTP_401_UNAUTHORIZED
+    detail = "Wrong password"
+
+
+class InvalidTokenException(BException):
+    status_code = status.HTTP_401_UNAUTHORIZED
+    detail = "Invalid token error"
+
+
+class UserInactiveException(BException):
+    status_code = status.HTTP_403_FORBIDDEN
+    detail = "User inactive"
