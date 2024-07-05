@@ -20,9 +20,5 @@ class RoleCreate(RoleBase):
     pass
 
 
-class RoleUpdate(RoleBase):
-    pass
-
-
 class Role(RoleBase):
     id: int

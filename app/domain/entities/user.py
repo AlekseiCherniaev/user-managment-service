@@ -10,11 +10,7 @@ class UserBase(BaseModel):
     username: str
     phone_number: Optional[str] = Field(None, max_length=20)
     email: EmailStr
-    role_id: int
-    group_id: int
     image_path: Optional[str] = Field(None, max_length=128)
-    is_blocked: bool = False
-    active: bool = True
 
 
 class UserCreate(UserBase):
@@ -34,3 +30,7 @@ class UserUpdate(UserBase):
 
 class User(UserBase):
     id: uuid.UUID = Field(default_factory=uuid.uuid4)
+    role_id: int
+    group_id: int
+    is_blocked: bool = False
+    active: bool = True

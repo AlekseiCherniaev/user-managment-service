@@ -4,7 +4,7 @@ from app.config.logger_config import logger
 from app.adapters.utils import password_check_complexity, hash_password, user_to_dict
 from app.dependencies.dependencies import get_current_user_from_token
 from app.domain.entities.user import UserUpdate, UserCreate
-from app.domain.models import Role
+from app.domain.models import Role, RoleEnum
 from app.domain.models.user import User
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql.expression import or_
@@ -132,12 +132,12 @@ class UserUseCases:
             user = await self.get_by_id(user_id=user_id, session=session)
             if not user:
                 raise UserNotFoundException
-
             statement = select(Role).where(Role.id == current_user.role_id)
             result: Result = await session.execute(statement)
             role = result.scalar_one_or_none()
 
-            if role.name == "ADMIN" or (role.name == "MODERATOR" and current_user.group_id == user.group_id):
+            if role.name is RoleEnum.ADMIN or (
+                    role.name is RoleEnum.MODERATOR and current_user.group_id == user.group_id):
                 return user
             else:
                 raise PermissionDeniedException
@@ -158,11 +158,16 @@ class UserUseCases:
             if not current_user:
                 raise InvalidTokenException
 
-            user = await self.get_by_id(user_id=user_id, session=session)
-            if not user:
-                raise UserNotFoundException
+            statement = select(Role).where(Role.id == current_user.role_id)
+            result: Result = await session.execute(statement)
+            role = result.scalar_one_or_none()
 
-            return await self.update(user=user, user_update=user_update, session=session)
+            if role.name is RoleEnum.ADMIN:
+                user = await self.get_by_id(user_id=user_id, session=session)
+                if not user:
+                    raise UserNotFoundException
+
+                return await self.update(user=user, user_update=user_update, session=session)
 
         except InvalidTokenException as e:
             logger.error(f"Invalid token: {str(e)}")
