@@ -47,3 +47,8 @@ class UserInactiveException(BException):
 class UserBlockedException(BException):
     status_code = status.HTTP_403_FORBIDDEN
     detail = "User blocked"
+
+
+class PermissionDeniedException(BException):
+    status_code = status.HTTP_403_FORBIDDEN
+    detail = "Permission denied"

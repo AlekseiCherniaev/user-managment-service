@@ -17,20 +17,8 @@ class UserRepo(BaseRepo):
                           session: AsyncSession) -> User:
         return await self.user_use_cases.create(user_in, session)
 
-    async def get_user(self, user_id: UUID,
-                       session: AsyncSession) -> User | None:
-        return await self.user_use_cases.get_by_id(user_id, session)
-
     async def get_all_users(self, session: AsyncSession) -> list[User]:
         return await self.user_use_cases.get_all(session)
-
-    async def update_user(self, user_id: UUID, user: UserUpdate,
-                          session: AsyncSession) -> User:
-        return await self.user_use_cases.update(user_id, user, session)
-
-    async def delete_user(self, user_id: UUID,
-                          session: AsyncSession) -> None:
-        return await self.user_use_cases.delete(user_id, session)
 
     async def get_current_user(self, payload: dict, user: User) -> dict:
         return await self.user_use_cases.get_current_user(payload, user)
@@ -52,3 +40,12 @@ class UserRepo(BaseRepo):
 
     async def logout_user(self, response: Response) -> None:
         return await self.auth_use_cases.logout(response)
+
+    async def get_user(self, user_id: UUID, payload: dict,
+                       session: AsyncSession) -> User | None:
+        return await self.user_use_cases.current_get_by_id(user_id=user_id, session=session, payload=payload)
+
+    async def update_user(self, payload: dict, user_update: UserUpdate, user_id: UUID,
+                          session: AsyncSession) -> User:
+        return await self.user_use_cases.current_update_user(user_id=user_id, session=session, user_update=user_update,
+                                                             payload=payload)

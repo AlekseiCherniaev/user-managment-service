@@ -14,19 +14,7 @@ class BaseRepo(ABC):
         ...
 
     @abstractmethod
-    async def get_user(self, user_id: uuid.UUID, session: AsyncSession) -> User | None:
-        ...
-
-    @abstractmethod
     async def get_all_users(self, session: AsyncSession) -> list[User]:
-        ...
-
-    @abstractmethod
-    async def update_user(self, user_id: uuid.UUID, user_update: UserUpdate, session: AsyncSession) -> User:
-        ...
-
-    @abstractmethod
-    async def delete_user(self, user_id: uuid.UUID, session: AsyncSession) -> None:
         ...
 
     @abstractmethod
@@ -55,4 +43,14 @@ class BaseRepo(ABC):
 
     @abstractmethod
     async def logout_user(self, response: Response) -> None:
+        ...
+
+    @abstractmethod
+    async def get_user(self, user_id: uuid.UUID, payload: dict,
+                       session: AsyncSession) -> User | None:
+        ...
+
+    @abstractmethod
+    async def update_user(self, user_id: uuid.UUID, payload: dict, user_update: UserUpdate,
+                          session: AsyncSession) -> User:
         ...
