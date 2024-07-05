@@ -4,9 +4,12 @@ from datetime import timedelta, datetime
 
 import jwt
 import bcrypt
-from app.config.config import settings
-from app.domain.entities.user import User
+from sqlalchemy import select, desc, Select
 
+from app.config.config import settings
+from app.domain.entities.pagination import PaginationInfo, Order
+from app.domain.entities.user import User
+from app.domain.models import user
 
 def encode_jwt(
         payload: dict,
@@ -115,19 +118,13 @@ def password_check_complexity(password: str) -> bool:
     return bool(pattern.match(password))
 
 
-def user_to_dict(user):
-    return {
-        "id": str(user.id),
-        "name": user.name,
-        "surname": user.surname,
-        "username": user.username,
-        "phone_number": user.phone_number,
-        "email": user.email,
-        "role_id": user.role_id,
-        "group_id": user.group_id,
-        "image_path": user.image_path,
-        "is_blocked": user.is_blocked,
-        "active": user.active,
-        "created_at": user.created_at,
-        "modified_at": user.modified_at
-    }
+def make_statement(pagination: PaginationInfo) -> Select:
+    statement = select(user.User)
+    statement = (
+        statement.offset(offset=(pagination.page - 1) * pagination.limit).limit(limit=pagination.limit)
+        if pagination.filter_by_name is None
+        else statement.filter(user.User.name == pagination.filter_by_name).limit(limit=pagination.limit)
+    )
+    statement = statement.order_by(pagination.sort_by) if pagination.order_by is Order.ASC else statement.order_by(
+        desc(pagination.sort_by))
+    return statement

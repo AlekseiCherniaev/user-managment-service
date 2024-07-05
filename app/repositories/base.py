@@ -1,10 +1,12 @@
 import uuid
 from abc import ABC, abstractmethod
 from fastapi import Response
+from pydantic import EmailStr
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.domain.entities.pagination import PaginationInfo
 from app.domain.entities.token import Token
-from app.domain.entities.user import User, UserUpdate, UserCreate
+from app.domain.entities.user import User, UserUpdate, UserCreate, CurrentUser
 
 
 class BaseRepo(ABC):
@@ -14,15 +16,11 @@ class BaseRepo(ABC):
         ...
 
     @abstractmethod
-    async def get_all_users(self, session: AsyncSession) -> list[User]:
-        ...
-
-    @abstractmethod
     async def login_user(self, user: User) -> Token:
         ...
 
     @abstractmethod
-    async def get_current_user(self, payload: dict, user: User) -> dict:
+    async def get_current_user(self, payload: dict, user: User) -> CurrentUser:
         ...
 
     @abstractmethod
@@ -53,4 +51,12 @@ class BaseRepo(ABC):
     @abstractmethod
     async def update_user(self, user_id: uuid.UUID, payload: dict, user_update: UserUpdate,
                           session: AsyncSession) -> User:
+        ...
+
+    @abstractmethod
+    async def get_all_users(self, pagination: PaginationInfo, payload: dict, session: AsyncSession) -> list[User]:
+        ...
+
+    @abstractmethod
+    async def reset_password(self, email: EmailStr) -> None:
         ...

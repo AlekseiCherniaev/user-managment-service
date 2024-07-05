@@ -1,9 +1,10 @@
 from uuid import UUID
 from sqlalchemy import select, Result
 from app.config.logger_config import logger
-from app.adapters.utils import password_check_complexity, hash_password, user_to_dict
-from app.dependencies.dependencies import get_current_user_from_token
-from app.domain.entities.user import UserUpdate, UserCreate
+from app.adapters.utils import password_check_complexity, hash_password, make_statement
+from app.dependencies.dependencies import get_current_user_from_token, get_role_from_user
+from app.domain.entities.pagination import PaginationInfo
+from app.domain.entities.user import UserUpdate, UserCreate, CurrentUser
 from app.domain.models import Role, RoleEnum
 from app.domain.models.user import User
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -26,10 +27,16 @@ class UserUseCases:
             if not password_check_complexity(user_data["password"]):
                 raise PasswordNotValidException
             user_data["password"] = hash_password(user_data["password"])
+
+            statement = select(Role).where(Role.name == RoleEnum.USER)
+            role = (await session.execute(statement)).scalar_one_or_none()
+            user_data["role_id"] = role.id
+
             user = User(**user_data)
             session.add(user)
             await session.commit()
             return user
+
         except UserAlreadyExistsException as e:
             logger.error(f"User already exists: {str(e)}")
             raise e
@@ -44,23 +51,16 @@ class UserUseCases:
             statement = select(User).where(User.id == user_id)
             result: Result = await session.execute(statement)
             user = result.scalar_one_or_none()
+
             if not user:
                 raise UserNotFoundException
             return user
+
         except UserNotFoundException as e:
             logger.error(f"User not found: {str(e)}")
             raise e
         except Exception as e:
             logger.error(f"Error fetching user by ID {user_id}: {str(e)}")
-
-    async def get_all(self, session: AsyncSession) -> list[User]:
-        try:
-            statement = select(User).order_by(User.username)
-            result: Result = await session.execute(statement)
-            users = result.scalars().all()
-            return list(users)
-        except Exception as e:
-            logger.error(f"Error fetching all users: {str(e)}")
 
     async def update(self, user: User, user_update: UserUpdate, session: AsyncSession) -> User:
         if user_update.password:
@@ -77,17 +77,14 @@ class UserUseCases:
         await session.commit()
         return user
 
-    async def get_current_user(self, payload: dict, user: User) -> dict:
+    async def get_current_user(self, payload: dict, user: User) -> CurrentUser:
         try:
             if user:
                 iat = payload.get("iat")
-                user_dict = user_to_dict(user)
-                user_dict["iat"] = iat
-                return user_dict
+                user_schema = CurrentUser.from_orm(user)
+                user_schema.iat = iat
+                return user_schema
 
-        except UserNotFoundException as e:
-            logger.error(f"User not found: {str(e)}")
-            raise e
         except Exception as e:
             logger.error(f"Error getting current user: {str(e)}")
 
@@ -132,9 +129,8 @@ class UserUseCases:
             user = await self.get_by_id(user_id=user_id, session=session)
             if not user:
                 raise UserNotFoundException
-            statement = select(Role).where(Role.id == current_user.role_id)
-            result: Result = await session.execute(statement)
-            role = result.scalar_one_or_none()
+
+            role = await get_role_from_user(user=current_user, session=session)
 
             if role.name is RoleEnum.ADMIN or (
                     role.name is RoleEnum.MODERATOR and current_user.group_id == user.group_id):
@@ -142,6 +138,9 @@ class UserUseCases:
             else:
                 raise PermissionDeniedException
 
+        except InvalidTokenException as e:
+            logger.error(f"Invalid token: {str(e)}")
+            raise e
         except PermissionDeniedException as e:
             logger.error(f"Permission denied: {str(e)}")
             raise e
@@ -158,9 +157,7 @@ class UserUseCases:
             if not current_user:
                 raise InvalidTokenException
 
-            statement = select(Role).where(Role.id == current_user.role_id)
-            result: Result = await session.execute(statement)
-            role = result.scalar_one_or_none()
+            role = await get_role_from_user(user=current_user, session=session)
 
             if role.name is RoleEnum.ADMIN:
                 user = await self.get_by_id(user_id=user_id, session=session)
@@ -180,3 +177,32 @@ class UserUseCases:
             raise e
         except Exception as e:
             logger.error(f"Error updating current user by ID {user_id}: {str(e)}")
+
+    async def get_all(self, pagination: PaginationInfo, payload: dict, session: AsyncSession) -> list[User]:
+        try:
+            current_user = await get_current_user_from_token(payload=payload, session=session)
+            if not current_user:
+                raise InvalidTokenException
+
+            role = await get_role_from_user(user=current_user, session=session)
+
+            if role.name in (RoleEnum.ADMIN, RoleEnum.MODERATOR):
+                statement = make_statement(pagination)
+                result: Result = await session.execute(statement)
+                users = result.scalars().all()
+
+                if role.name is RoleEnum.MODERATOR:
+                    users = [user for user in users if user.group_id == current_user.group_id]
+
+                return users
+            else:
+                raise PermissionDeniedException
+
+        except PermissionDeniedException as e:
+            logger.error(f"Permission denied: {str(e)}")
+            raise e
+        except InvalidTokenException as e:
+            logger.error(f"Invalid token: {str(e)}")
+            raise e
+        except Exception as e:
+            logger.error(f"Error fetching all users: {str(e)}")

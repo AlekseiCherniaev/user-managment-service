@@ -10,7 +10,7 @@ from app.config.exceptions import InvalidTokenException, UserNotFoundException, 
     UserBlockedException
 from app.config.logger_config import logger
 from app.dependencies.db_helper import db_helper
-from app.domain.models import User
+from app.domain.models import User, Role
 
 oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl="/auth/login/",
@@ -19,13 +19,10 @@ oauth2_scheme = OAuth2PasswordBearer(
 http_bearer = HTTPBearer(auto_error=False)
 
 
-def get_current_token_payload(
-        token: str = Depends(oauth2_scheme),
-) -> dict:
+def get_current_token_payload(token: str = Depends(oauth2_scheme)) -> dict:
     try:
-        payload = decode_jwt(
-            token=token,
-        )
+        payload = decode_jwt(token=token)
+
     except InvalidTokenError as e:
         raise InvalidTokenException
     return payload
@@ -40,6 +37,7 @@ def validate_token_type(
         if current_token_type == token_type:
             return True
         raise InvalidTokenException
+
     except InvalidTokenException as e:
         logger.error(f"Invalid token type: {str(e)}")
         raise e
@@ -47,20 +45,25 @@ def validate_token_type(
         logger.error(f"Exception in validating token type: {str(e)}")
 
 
-async def get_user_by_token_sub(payload: dict, session: AsyncSession) -> User:
-    try:
-        username: str | None = payload.get("sub")
-        statement = select(User).where(User.username == username)
-        result: Result = await session.execute(statement)
-        user = result.scalar_one_or_none()
-        if user:
-            return user
-        raise UserNotFoundException
-    except UserNotFoundException as e:
-        logger.error(f"User not found: {str(e)}")
-        raise e
-    except Exception as e:
-        logger.error(f"Exception in getting user by token: {str(e)}")
+async def get_current_user_from_token(
+        payload: dict,
+        session: AsyncSession,
+) -> User:
+    username = payload.get("sub")
+    statement = select(User).where(User.username == username)
+    result: Result = await session.execute(statement)
+    user = result.scalar_one_or_none()
+    return user
+
+
+async def get_role_from_user(
+        user: User,
+        session: AsyncSession,
+) -> Role:
+    statement = select(Role).where(Role.id == user.role_id)
+    result: Result = await session.execute(statement)
+    role = result.scalar_one_or_none()
+    return role
 
 
 def get_auth_user_from_token_of_type(token_type: str):
@@ -68,8 +71,8 @@ def get_auth_user_from_token_of_type(token_type: str):
             payload: dict = Depends(get_current_token_payload),
             session: AsyncSession = Depends(db_helper.session_dependency),
     ) -> User:
-        validate_token_type(payload, token_type)
-        return await get_user_by_token_sub(payload, session)
+        validate_token_type(payload=payload, token_type=token_type)
+        return await get_current_user_from_token(payload=payload, session=session)
 
     return get_auth_user_from_token
 
@@ -83,14 +86,15 @@ async def validate_auth_user(
         username: str = Form(),
         password: str = Form(),
         session: AsyncSession = Depends(db_helper.session_dependency),
-):
+) -> User:
     try:
         statement = select(User).where(or_(User.username == username, User.email == username,
                                            User.phone_number == username))
         result: Result = await session.execute(statement)
         user = result.scalar_one_or_none()
+
         if not user:
-            raise WrongPasswordException
+            raise UserNotFoundException
 
         if not validate_password(
                 password=password,
@@ -102,6 +106,7 @@ async def validate_auth_user(
             raise UserBlockedException
 
         return user
+
     except WrongPasswordException as e:
         logger.error(f"Wrong password: {str(e)}")
         raise e
@@ -110,11 +115,3 @@ async def validate_auth_user(
         raise e
     except Exception as e:
         logger.error(f"Exception in validating user: {str(e)}")
-
-
-async def get_current_user_from_token(payload: dict, session: AsyncSession) -> User:
-    username = payload.get("sub")
-    statement = select(User).where(User.username == username)
-    result: Result = await session.execute(statement)
-    user = result.scalar_one_or_none()
-    return user
