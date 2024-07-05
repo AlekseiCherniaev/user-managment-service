@@ -11,7 +11,7 @@ class RoleEnum(enum.Enum):
 
 
 class RoleBase(BaseModel):
-    name: RoleEnum
+    name: RoleEnum = RoleEnum.USER
     created_at: datetime
     updated_at: datetime
 

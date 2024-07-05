@@ -1,4 +1,5 @@
 import uuid
+from datetime import datetime
 
 from pydantic import BaseModel, EmailStr, Field
 from typing import Optional
@@ -31,6 +32,13 @@ class UserUpdate(UserBase):
 class User(UserBase):
     id: uuid.UUID = Field(default_factory=uuid.uuid4)
     role_id: int
-    group_id: int
+    group_id: int | None = None
     is_blocked: bool = False
     active: bool = True
+
+
+class CurrentUser(User):
+    iat: datetime = None
+
+    class Config:
+        from_attributes = True

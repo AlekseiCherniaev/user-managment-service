@@ -18,6 +18,6 @@ class RoleEnum(enum.Enum):
 class Role(Base):
     __tablename__ = "roles"
 
-    name: Mapped[str] = mapped_column(Enum(RoleEnum), unique=True, nullable=False, default="USER")
+    name: Mapped[str] = mapped_column(Enum(RoleEnum), unique=True, nullable=False, default=RoleEnum.USER)
 
     users: Mapped[list['User']] = relationship(back_populates="roles")

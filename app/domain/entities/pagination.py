@@ -14,6 +14,6 @@ class PaginationInfo(BaseModel):
 
     filter_by_name: str | None = None
 
-    sort_by: str | None = None
+    sort_by: str | None = "username"
 
     order_by: Order = "DESC"
