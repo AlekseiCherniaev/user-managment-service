@@ -1,6 +1,6 @@
 from .base import Base
 from .group import Group
-from .role import Role
+from .role import Role, RoleEnum
 from .user import User
 
 __all__ = (
@@ -8,4 +8,5 @@ __all__ = (
     'Group',
     'Role',
     'User',
+    'RoleEnum',
 )

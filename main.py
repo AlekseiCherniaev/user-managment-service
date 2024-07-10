@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 
+from app.adapters.controllers.auth import auth_router
 from app.adapters.controllers.users import user_router
 from app.config.logger_config import setup_logger
 
@@ -9,3 +10,4 @@ app = FastAPI()
 logger.info("Main module initialized")
 
 app.include_router(user_router)
+app.include_router(auth_router)

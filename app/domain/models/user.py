@@ -22,7 +22,7 @@ class User(Base):
     phone_number: Mapped[str] = mapped_column(String(20), )
     email: Mapped[str] = mapped_column(String(128), unique=True, nullable=False)
     role_id: Mapped[int] = mapped_column(ForeignKey("roles.id"))
-    group_id: Mapped[int] = mapped_column(ForeignKey("groups.id"))
+    group_id: Mapped[int] = mapped_column(ForeignKey("groups.id"), nullable=True)
     image_path: Mapped[str] = mapped_column(String(128))
     is_blocked: Mapped[bool] = mapped_column(default=False, server_default='False')
     active: Mapped[bool] = mapped_column(default=True, server_default='True')

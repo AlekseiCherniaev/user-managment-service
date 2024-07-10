@@ -11,16 +11,12 @@ class RoleEnum(enum.Enum):
 
 
 class RoleBase(BaseModel):
-    name: RoleEnum
+    name: RoleEnum = RoleEnum.USER
     created_at: datetime
     updated_at: datetime
 
 
 class RoleCreate(RoleBase):
-    pass
-
-
-class RoleUpdate(RoleBase):
     pass
 
 
